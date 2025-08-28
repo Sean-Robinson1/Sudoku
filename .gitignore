@@ -1,0 +1,14 @@
+.env
+
+__pycache__/
+*.pyc
+
+# ignore image files
+*.jpeg
+*.jpg 
+*.png
+uploads/
+processed/
+
+# ignore test file
+test.py

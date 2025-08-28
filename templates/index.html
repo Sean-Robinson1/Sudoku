@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Solver</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin: 10px;
+        }
+
+        .custom-file-upload:hover {
+            background: #0056b3;
+        }
+
+        #preview, #processedImage {
+            margin-top: 15px;
+            max-width: 100%;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .upload-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: #218838;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            margin: 10px auto;
+            width: 30px;
+            height: 30px;
+            border: 4px solid rgba(0, 0, 0, 0.2);
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Initially hide "Processed Image" text */
+        #processedText {
+            display: none;
+            font-weight: bold;
+            margin-top: 15px;
+            color: #333;
+        }
+
+        /* Hide "Take a Photo" on Desktop (CSS) */
+        @media (min-width: 768px) {
+            #takePhotoLabel {
+                display: none;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Upload or Take a Photo</h2>
+
+        <!-- Take a Photo (Only on Mobile) -->
+        <label for="photoInput" class="custom-file-upload" id="takePhotoLabel">📷 Take a Photo</label>
+        <input type="file" accept="image/*" capture="environment" id="photoInput" class="file-input">
+
+        <!-- Choose from Gallery (Always Visible) -->
+        <label for="photoUpload" class="custom-file-upload">📁 Choose from Gallery</label>
+        <input type="file" accept="image/*" id="photoUpload" class="file-input">
+
+        <img id="preview" alt="Image Preview">
+
+        <button class="upload-btn" onclick="uploadPhoto()" id="uploadBtn">Upload & Process</button>
+
+        <div class="spinner" id="spinner"></div> <!-- Loading Spinner -->
+
+        <p id="status"></p>
+
+        <h3 id="processedText">Processed Image:</h3>
+        <img id="processedImage">
+    </div>
+
+    <script>
+        const photoInput = document.getElementById("photoInput");
+        const photoUpload = document.getElementById("photoUpload");
+        const preview = document.getElementById("preview");
+        const processedImage = document.getElementById("processedImage");
+        const uploadBtn = document.getElementById("uploadBtn");
+        const spinner = document.getElementById("spinner");
+        const processedText = document.getElementById("processedText");
+        const takePhotoLabel = document.getElementById("takePhotoLabel");
+
+        function handleImageSelection(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Listen for both camera and gallery uploads
+        photoInput.addEventListener("change", handleImageSelection);
+        photoUpload.addEventListener("change", handleImageSelection);
+
+        function uploadPhoto() {
+            let selectedFile = photoInput.files[0] || photoUpload.files[0];
+
+            if (!selectedFile) {
+                alert("Please select an image first!");
+                return;
+            }
+
+            // Show loading animation and disable button
+            uploadBtn.textContent = "Processing...";
+            uploadBtn.disabled = true;
+            spinner.style.display = "block";
+            processedText.style.display = "none"; // Hide "Processed Image" text initially
+            processedImage.style.display = "none"; // Hide image initially
+
+            let formData = new FormData();
+            formData.append("photo", selectedFile);
+
+            fetch("/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                let imgUrl = URL.createObjectURL(blob);
+                processedImage.src = imgUrl;
+                processedImage.style.display = "block";
+                processedText.style.display = "block"; // Show "Processed Image" text
+
+                // Hide spinner and reset button
+                uploadBtn.textContent = "Upload & Process";
+                uploadBtn.disabled = false;
+                spinner.style.display = "none";
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while processing the image.");
+
+                // Hide spinner and reset button
+                uploadBtn.textContent = "Upload & Process";
+                uploadBtn.disabled = false;
+                spinner.style.display = "none";
+            });
+        }
+
+        // **Extra Safety**: Hide "Take a Photo" button using JavaScript on desktops
+        if (!/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
+            takePhotoLabel.style.display = "none";
+        }
+
+    </script>
+
+</body>
+</html>
