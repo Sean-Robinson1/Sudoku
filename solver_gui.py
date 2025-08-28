@@ -1,5 +1,5 @@
 from tkinter import *
-from timeit import default_timer as timer
+from time import time
 from solver import *
 
 numbers = ['1','2','3','4','5','6','7','8','9']
@@ -54,7 +54,7 @@ class SudokuGUI:
                     squaresFound[i * 9 + ii] = line[ii]
 
         initalNums = squaresFound
-        start = timer()
+        start = time()
         squares = startLogicalSolve(squares)
         isSolved = True
         counter = 0
@@ -74,7 +74,7 @@ class SudokuGUI:
             findSolution(self.boxes, newSquares,start)
             
 
-        end = timer()
+        end = time()
         for row in newSquares:
             for square in row:
                 print(square,' ',end = '')
@@ -196,7 +196,7 @@ class SudokuGUI:
 
 def findSolution(boxes: list[Button], squares: list[list[str]], start: float, showBruteForce: bool = False) -> list[list[str]] | None:
     if findEmpty(squares) == None:
-        end = timer()
+        end = time()
         print(f'This took {end - start} seconds.')
         for i in range (9):
             for ii in range (9):

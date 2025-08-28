@@ -1,4 +1,4 @@
-from timeit import default_timer as timer
+from time import time
 squares={}
 squaresFound={}
 
@@ -383,11 +383,11 @@ if __name__ == "__main__":
     else:
         linesString = makeList(difficulty)
 
-    start = timer()
+    start = time()
     
     solved = solve(linesString)
 
-    end = timer()
+    end = time()
     for row in solved:
         for square in row:
             print(square,' ',end = '')
