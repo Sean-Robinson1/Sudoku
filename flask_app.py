@@ -45,7 +45,20 @@ def upload():
                 squares[idx] = {int(digit)}
 
     squares = startLogicalSolve(squares)
-    filled = bruteForce(newSquares)
+    solved = True
+    counter = 0
+    newSquares = string2List(["0"*9 for _ in range(9)])
+
+    for value in squares.values():
+        if len(value) == 1:
+            newSquares[counter // 9][counter % 9] = str(list(value)[0])
+        else:
+            solved = False
+            
+        counter += 1
+
+    if not solved:
+        bruteForce(newSquares)
 
     # Drawing solution back onto puzzle
     xInc = warpedBlurred.shape[1] // 9
