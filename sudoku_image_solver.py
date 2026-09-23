@@ -303,7 +303,9 @@ if __name__ == "__main__":
 
     # opens image as greyscale
     image = cv2.imread(photoPath, cv2.IMREAD_GRAYSCALE)
-                
+    if image is None:
+        raise ValueError(f"Could not read image at {photoPath}")
+
     if debug:
         showImage("Original", image)
 

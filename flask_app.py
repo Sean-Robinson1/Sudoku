@@ -24,6 +24,8 @@ def upload():
     # Read uploaded file into memory as numpy array
     file_bytes = np.frombuffer(file.read(), np.uint8)
     image = cv2.imdecode(file_bytes, cv2.IMREAD_GRAYSCALE)
+    if image is None:
+        return "Could not read image", 400
 
     # Resize if very large
     h, w = image.shape[:2]

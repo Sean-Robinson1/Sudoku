@@ -1,0 +1,11 @@
+opencv-python
+numpy
+pytesseract
+python-dotenv
+imutils
+scikit-image
+flask
+
+# dev tools
+pytest
+pre-commit
