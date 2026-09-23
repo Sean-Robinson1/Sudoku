@@ -108,7 +108,7 @@ def findEmpty(squares: list[list]) -> tuple[int,int] | None:
     return None
 
 
-def checkValue(squares: list[list], row:int, column:int, value:int) -> bool:
+def checkValue(squares: list[list], row:int, column:int, value:str) -> bool:
     '''
     Checks if an item can be placed in a certain cell
     does this by checking if any square in the same
@@ -146,16 +146,11 @@ def bruteForce(squares: list[list]) -> bool:
     Tries to brute force a solution for the sudoku. Does this
     via backtracking.
     '''
-    #checks if the sudoku is solved
-    if findEmpty(squares) is None:
+    # finds next empty cell, if there is none the sudoku is solved
+    empty = findEmpty(squares)
+    if empty is None:
         return True
-
-    # finds next empty cell
-    try:
-        row, column = findEmpty(squares)
-    except:
-        print(squares)
-        print(findEmpty(squares))
+    row, column = empty
 
     # iterates through all possible values for that cell and 
     # checks to see if they are possible
@@ -206,8 +201,7 @@ def updateCell(squareNum:int, squares:dict) -> dict:
     from the values they can take. If that cell then becomes solved it calls
     update on that cell.
     '''
-    for x in squares[squareNum]: 
-        squareValue = x
+    squareValue = next(iter(squares[squareNum]))
 
     # updating rows
     for i in rowFinder(squareNum):
@@ -236,7 +230,7 @@ def updateCell(squareNum:int, squares:dict) -> dict:
     return squares
 
 
-def checkHiddenSingles(squares:dict) -> None:
+def checkHiddenSingles(squares:dict) -> dict:
     '''
     Checks for hidden singles in rows, boxes and columns. A hidden
     single is where only one cell in a row, box or column can take

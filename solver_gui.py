@@ -1,4 +1,4 @@
-from tkinter import *
+from tkinter import Tk, Button, Frame, Event, IntVar
 from time import time
 from solver import *
 
@@ -9,11 +9,11 @@ class SudokuGUI:
     def __init__(self, main: Tk) -> None:
         self.showBruteForce = False
         self.currentBox = 0
-        self.boxes = {}
+        self.boxes: dict[int, Button] = {}
         boxNum = 0
         for column in range(0, 360, 40):
             for row in range(70, 430, 40):
-                grid = Button(main,justify = 'center',font = 30,command = lambda num=boxNum: choice.set(num))
+                grid = Button(main,justify = 'center',font = '30',command = lambda num=boxNum: choice.set(num))
                 grid.place(x = row, y = column, width=40, height=40)
                 self.boxes[boxNum] = grid
                 boxNum += 1
@@ -27,7 +27,7 @@ class SudokuGUI:
             horizontal = Frame(main, bg='black', height=1,width=360)
             horizontal.place(x=70,y=ycoord)
 
-    def enterData(self,event: Event = None) -> None:
+    def enterData(self,event: Event | None = None) -> None:
         self.resetBoard()
         newSquares = squaresTemplate
         squares = {}
@@ -194,8 +194,9 @@ class SudokuGUI:
         for i in range(81):
             self.boxes[i].config(text = '')
 
-def findSolution(boxes: list[Button], squares: list[list[str]], start: float, showBruteForce: bool = False) -> list[list[str]] | None:
-    if findEmpty(squares) == None:
+def findSolution(boxes: dict[int, Button], squares: list[list[str]], start: float, showBruteForce: bool = False) -> list[list[str]] | None:
+    empty = findEmpty(squares)
+    if empty is None:
         end = time()
         print(f'This took {end - start} seconds.')
         for i in range (9):
@@ -211,7 +212,7 @@ def findSolution(boxes: list[Button], squares: list[list[str]], start: float, sh
 
         return squares
     else:
-        row,column = findEmpty(squares)
+        row,column = empty
         
     for i in range (1,10):
         if checkValue(squares,row,column,str(i)) == True:
@@ -220,7 +221,7 @@ def findSolution(boxes: list[Button], squares: list[list[str]], start: float, sh
                 boxes[row*9+column].config(text = str(i))
             main.update()
             tempVar = findSolution(boxes, squares,start)
-            if tempVar == False:
+            if tempVar is None:
                 squares[row][column] = '0'
                 if showBruteForce == True:
                     boxes[row*9+column].config(text = '')
@@ -230,7 +231,7 @@ def findSolution(boxes: list[Button], squares: list[list[str]], start: float, sh
     if showBruteForce == True:
         boxes[row*9+column].config(text = '')
     main.update()
-    return False   
+    return None
 
 main = Tk()
 main.geometry('500x400')

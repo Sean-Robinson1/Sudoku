@@ -70,6 +70,9 @@ def findPuzzle(image: ndarray, debug: bool = False) -> tuple[ndarray, ndarray, n
             puzzleContour = approx
             break
 
+    if puzzleContour is None:
+        raise ValueError("Could not find the puzzle outline in the image")
+
     if debug:
         output = image.copy()
         cv2.drawContours(output, [puzzleContour], -1, (255, 0, 0), 10)
@@ -159,9 +162,8 @@ def getDigits(warped: ndarray, warpedBinary: ndarray, debug: bool = False, debug
                 print(len(contours))
                 print(cell.shape)
                 
-            if len(contours) > 0:
-                contour = max(contours, key = cv2.contourArea)
-                
+            contour = max(contours, key = cv2.contourArea) if len(contours) > 0 else None
+
             # flipping colours as pytesseract does better when dealing with black text 
             # on white background
             cell = cv2.bitwise_not(cell)
@@ -217,7 +219,7 @@ def getDigits(warped: ndarray, warpedBinary: ndarray, debug: bool = False, debug
                     print('Normal Cell Adjusted: ',cellOCRtext[0],cellOCRtext[1])
 
             
-            if len(contours) > 0 and text == "N/A": 
+            if contour is not None and text == "N/A":
                 # this code creates a new image using the contours of the original 
                 # sometimes this can improve results by further reducing noise
 
@@ -289,8 +291,8 @@ if __name__ == "__main__":
     # extracting path to the image to process
     if len(sys.argv) > 1:
         photoPath = sys.argv[1]
-    elif os.getenv("PHOTO_PATH"): 
-        photoPath = os.getenv("PHOTO_PATH")
+    elif envPath := os.getenv("PHOTO_PATH"):
+        photoPath = envPath
     else:
         raise ValueError("No valid path found on input")
     

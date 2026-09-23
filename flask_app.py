@@ -79,7 +79,7 @@ def upload():
                 )
 
     _, buffer = cv2.imencode(".jpg", warpedBlurred)
-    io_buf = io.BytesIO(buffer)
+    io_buf = io.BytesIO(buffer.tobytes())
 
     return send_file(io_buf, mimetype="image/jpeg")
 
